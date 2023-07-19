@@ -1,23 +1,33 @@
 import { Request, Response } from "express";
-import { PostsModel } from "../model/company_posts";
+import { PostsModel } from "../model/posts";
+import { CompanyModel } from "../model/company_auth_model";
 
 export const createPost = async (req: Request, res: Response) => {
   try {
-    const { name, salary, location, about } = req.body;
+    const { title, salary, location, about, companyName } = req.body;
+
+    const company = await CompanyModel.findOne({ name: companyName });
+
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
 
     const new_post = new PostsModel({
-      name,
+      title,
       about,
       location,
       salary,
+      company_id: company?._id,
+      company_photo: company?.photo,
+      company_name: company?.company_name,
     });
 
-    if (!name || !about || !location || !salary) {
+    if (!title || !about || !location || !salary) {
       res.json({ message: "Você provavelmente não preencheu alguns campos." });
     }
-
+    console.log(new_post);
     await new_post.save();
-    const post = await PostsModel.find();
+    const post = await PostsModel.find().populate("company_photo");
     res.status(201).json(post);
   } catch (error: any) {
     console.log(error);
@@ -28,20 +38,29 @@ export const createPost = async (req: Request, res: Response) => {
 export const updatePost = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, salary, location, about } = req.body;
+    const { title, salary, location, about, companyName } = req.body;
     const post = await PostsModel.findById(id);
 
     if (!post) {
       res.status(404).json("Anuncio de vaga não existe");
     }
 
+    const company = await CompanyModel.findOne({ name: companyName });
+
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
     const update_post = await PostsModel.findByIdAndUpdate(
       { _id: id },
       {
-        name,
+        title,
         salary,
         location,
         about,
+        company_id: company?._id,
+        company_photo: company?.photo,
+        company_name: company?.company_name,
       }
     );
 
@@ -54,7 +73,7 @@ export const updatePost = async (req: Request, res: Response) => {
 
 export const getAllPosts = async (req: Request, res: Response) => {
   try {
-    const post = await PostsModel.find().sort({ _id: -1 })
+    const post = await PostsModel.find().sort({ _id: -1 });
     res.status(200).json(post);
   } catch (error: any) {
     console.log(error);
