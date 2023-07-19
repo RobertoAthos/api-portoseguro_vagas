@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import { CompanyModel } from "../model/company_auth_model";
+import { CompanyModel } from "../../model/company_auth_model";
 import bcrypt from "bcryptjs";
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
+import { keys } from "../../config/keys";
 
 export const CompanyRegister = async (req: Request, res: Response) => {
   try {
@@ -31,12 +32,16 @@ export const CompanyLogin = async (req: Request, res: Response) => {
       req.body.password,
       verify_if_company_exists.password
     );
+
     if (!login_company) {
       return res.status(400).send("Esse Email/Senha incorreto");
     }
 
-    const token = jwt.sign({_id: verify_if_company_exists._id}, 'b7236ec5-d8f5-486b-b6d4-37961cead18e')
-    res.header('Authorization', token)
+    const token = jwt.sign(
+      { _id: verify_if_company_exists._id },
+      keys.COMPANIES_SECRET_KEY!
+    );
+    res.header("Authorization", token);
     res.status(200).json(token);
   } catch (error: any) {
     res.status(400).send(error.message);

@@ -1,13 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
-const secret_key = "b7236ec5-d8f5-486b-b6d4-37961cead18e";
-
 interface AuthRequest extends Request {
   user?: string | JwtPayload;
 }
 
-export const authMiddleware = (
+export const authMiddleware = (secret_key: string) => (
   req: AuthRequest,
   res: Response,
   next: NextFunction
