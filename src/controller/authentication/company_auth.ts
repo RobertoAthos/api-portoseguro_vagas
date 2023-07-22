@@ -7,6 +7,11 @@ import { keys } from "../../config/keys";
 export const CompanyRegister = async (req: Request, res: Response) => {
   try {
     const new_company = new CompanyModel(req.body);
+
+    if (req.file) {
+      new_company.avatar = req.file.path;
+    }
+    
     const salt = await bcrypt.genSalt(10);
     new_company.password = bcrypt.hashSync(req.body.password, salt);
 
