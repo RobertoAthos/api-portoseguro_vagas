@@ -9,7 +9,7 @@ const HOST = '0.0.0.0'
 
 app.use(cors())
 app.use(express.json())
-app.use('/ps', router)
+app.use('/v1/ps', router)
 
 app.get('/', (req,res)=>{
     res.send('Aobaaa 5')
