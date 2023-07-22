@@ -13,9 +13,11 @@ import {
   CompanyRegister,
 } from "./controller/authentication/company_auth";
 import { UpdateCompany } from "./controller/company_account";
+import { UserApplyJob } from "./controller/user_apply_job";
 import { authMiddleware } from "./middleware/auth_middleware";
 import { keys } from "./config/keys";
 import { upload } from "./middleware/upload";
+import { getAllApplications } from "./controller/get_job_applications";
 
 const router = Router();
 
@@ -70,6 +72,18 @@ router.patch(
   authMiddleware(keys.USERS_SECRET_KEY!),
   uploadFiles,
   UpdateUser
+);
+
+router.post(
+  "/candidatar-usuario/:id",
+  authMiddleware(keys.USERS_SECRET_KEY!),
+  UserApplyJob
+);
+
+router.get(
+  "/candidatos/:id",
+  authMiddleware(keys.COMPANIES_SECRET_KEY!),
+  getAllApplications
 );
 
 export default router;
