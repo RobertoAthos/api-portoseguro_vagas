@@ -4,10 +4,8 @@ import { CompanyModel } from "../model/company_auth_model";
 
 export const createPost = async (req: Request, res: Response) => {
   try {
-    const { title, salary, location, about, companyName } = req.body;
-
-    const company = await CompanyModel.findOne({ name: companyName });
-
+    const { title, salary, location, about, companyId } = req.body;
+    const company = await CompanyModel.findById(companyId);
     if (!company) {
       return res.status(404).json({ message: "Company not found" });
     }
@@ -17,9 +15,9 @@ export const createPost = async (req: Request, res: Response) => {
       about,
       location,
       salary,
-      company_id: company?._id,
-      company_photo: company?.photo,
-      company_name: company?.company_name,
+      company_id: company._id,
+      company_photo: company.avatar,
+      company_name: company.company_name,
     });
 
     if (!title || !about || !location || !salary) {
@@ -27,7 +25,7 @@ export const createPost = async (req: Request, res: Response) => {
     }
     console.log(new_post);
     await new_post.save();
-    const post = await PostsModel.find().populate("company_photo");
+    const post = await PostsModel.find().sort({ _id: -1 });
     res.status(201).json(post);
   } catch (error: any) {
     console.log(error);
@@ -59,8 +57,8 @@ export const updatePost = async (req: Request, res: Response) => {
         location,
         about,
         company_id: company?._id,
-        company_photo: company?.photo,
-        company_name: company?.company_name,
+        company_photo: company.avatar,
+        company_name: company.company_name,
       }
     );
 

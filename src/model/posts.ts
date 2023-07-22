@@ -11,7 +11,7 @@ const PostsSchema = new mongoose.Schema({
     default:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTr2TWLC89uQt3vWdCNxxESU3iK9Pj-acV5CA&usqp=CAU",
   },
-  company_name: { type: String, ref: "Companies" },
+  company_name: { type: String, required:true },
 });
 
 export const PostsModel = mongoose.model("Posts", PostsSchema);
