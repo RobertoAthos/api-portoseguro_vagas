@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { PostsModel } from "../model/posts";
-import { CompanyModel } from "../model/company_auth_model";
+import { PostsModel } from "../../model/posts";
+import { CompanyModel } from "../../model/company_auth_model";
 
 export const createPost = async (req: Request, res: Response) => {
   try {

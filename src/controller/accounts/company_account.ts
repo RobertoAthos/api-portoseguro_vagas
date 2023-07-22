@@ -1,6 +1,6 @@
 
 import { Request, Response } from "express";
-import { CompanyModel } from "../model/company_auth_model";
+import { CompanyModel } from "../../model/company_auth_model";
 
 export const UpdateCompany = async (req: Request, res: Response) => {
     try {

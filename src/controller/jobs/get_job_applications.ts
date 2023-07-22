@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ApplyJobModel } from "../model/apply_jobs_model";
+import { ApplyJobModel } from "../../model/apply_jobs_model";
 
 export const getAllApplications = async (req: Request, res: Response) => {
   try {

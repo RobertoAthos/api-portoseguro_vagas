@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { UserModel } from "../model/user_auth_model";
-import { PostsModel } from "../model/posts";
-import { ApplyJobModel } from "../model/apply_jobs_model";
+import { UserModel } from "../../model/user_auth_model";
+import { PostsModel } from "../../model/posts";
+import { ApplyJobModel } from "../../model/apply_jobs_model";
 
 export const UserApplyJob = async (req: Request, res: Response) => {
   try {
