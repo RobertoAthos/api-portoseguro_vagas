@@ -1,23 +1,26 @@
 import { Router } from "express";
 import {
+  CompanyLogin,
+  CompanyRegister,
+} from "./controller/authentication/company_auth";
+import { UserLogin, UserRegister } from "./controller/authentication/user_auth";
+
+import { UpdateUser } from "./controller/accounts/user_account";
+import { UpdateCompany } from "./controller/accounts/company_account";
+
+import {
   createPost,
   deletePost,
   getAllPosts,
   getPost,
   updatePost,
-} from "./controller/job_posts";
-import { UserLogin, UserRegister } from "./controller/authentication/user_auth";
-import { UpdateUser } from "./controller/user_account";
-import {
-  CompanyLogin,
-  CompanyRegister,
-} from "./controller/authentication/company_auth";
-import { UpdateCompany } from "./controller/company_account";
-import { UserApplyJob } from "./controller/user_apply_job";
+} from "./controller/jobs/job_posts";
+import { UserApplyJob } from "./controller/jobs/user_apply_job";
+import { getAllApplications } from "./controller/jobs/get_job_applications";
+
 import { authMiddleware } from "./middleware/auth_middleware";
 import { keys } from "./config/keys";
 import { upload } from "./middleware/upload";
-import { getAllApplications } from "./controller/get_job_applications";
 
 const router = Router();
 
@@ -38,10 +41,6 @@ router.get("/vagas", getAllPosts);
 router.get("/vaga/:id", getPost);
 router.post("/cadastrar-empresa", upload.single("avatar"), CompanyRegister);
 router.post("/login-empresa", CompanyLogin);
-router.post("/cadastrar-usuario", uploadFiles, UserRegister);
-router.post("/login-usuario", UserLogin);
-
-// PRIVATE ROUTES
 router.post(
   "/criar-vaga",
   authMiddleware(keys.COMPANIES_SECRET_KEY!),
@@ -49,7 +48,7 @@ router.post(
 );
 
 router.delete(
-  "/delete",
+  "/delete-company-post",
   authMiddleware(keys.COMPANIES_SECRET_KEY!),
   deletePost
 );
@@ -62,11 +61,21 @@ router.patch(
 
 router.patch(
   "/atualizar-conta-empresa/:id",
-  //authMiddleware(keys.COMPANIES_SECRET_KEY!),
+  authMiddleware(keys.COMPANIES_SECRET_KEY!),
   upload.single("avatar"),
   UpdateCompany
 );
 
+router.get(
+  "/candidatos/:id",
+  authMiddleware(keys.COMPANIES_SECRET_KEY!),
+  getAllApplications
+);
+
+//----------- USERS --------------
+
+router.post("/cadastrar-usuario", uploadFiles, UserRegister);
+router.post("/login-usuario", UserLogin);
 router.patch(
   "/atualizar-conta/:id",
   authMiddleware(keys.USERS_SECRET_KEY!),
@@ -78,12 +87,6 @@ router.post(
   "/candidatar-usuario/:id",
   authMiddleware(keys.USERS_SECRET_KEY!),
   UserApplyJob
-);
-
-router.get(
-  "/candidatos/:id",
-  authMiddleware(keys.COMPANIES_SECRET_KEY!),
-  getAllApplications
 );
 
 export default router;
