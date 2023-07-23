@@ -6,7 +6,7 @@ import {
 import { UserLogin, UserRegister } from "./controller/authentication/user_auth";
 
 import { UpdateUser } from "./controller/accounts/user_account";
-import { UpdateCompany } from "./controller/accounts/company_account";
+import { UpdateCompany,DeleteCompany,UpdateCompanyPassword } from "./controller/accounts/company_account";
 
 import {
   createPost,
@@ -68,9 +68,13 @@ router.patch(
 
 router.get(
   "/candidatos/:id",
-  authMiddleware(keys.COMPANIES_SECRET_KEY!),
+  //authMiddleware(keys.COMPANIES_SECRET_KEY!),
   getAllApplications
 );
+
+router.delete('/delete-company/:id', DeleteCompany)
+
+router.patch('/atualizar-senha-empresa/:id', UpdateCompanyPassword)
 
 //----------- USERS --------------
 

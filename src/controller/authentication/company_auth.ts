@@ -6,6 +6,14 @@ import { keys } from "../../config/keys";
 
 export const CompanyRegister = async (req: Request, res: Response) => {
   try {
+    const verify_if_company_exists = await CompanyModel.findOne({
+      email: req.body.company_email,
+    });
+
+    if(verify_if_company_exists){
+      return res.status(400).json("Email já existente");
+    }
+    
     const new_company = new CompanyModel(req.body);
 
     if (req.file) {
