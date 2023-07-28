@@ -6,7 +6,7 @@ export const getAllApplications = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const applications = await ApplyJobModel.find({ jobId: id })
-      .populate("userId", "userCV userEmail userPhoto")
+      .populate("userId", "userCV userEmail userPhoto userPhone")
       .exec();
 
     const candidates = applications.map((candidate) => ({
@@ -14,6 +14,7 @@ export const getAllApplications = async (req: Request, res: Response) => {
       name: candidate.userName,
       email: candidate.userEmail,
       cv: candidate.userCV,
+      phone: candidate.userPhone
     }));
 
     res.status(200).json(candidates);

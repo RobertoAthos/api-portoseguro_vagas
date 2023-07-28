@@ -5,7 +5,7 @@ import { ApplyJobModel } from "../../model/apply_jobs_model";
 
 export const UserApplyJob = async (req: Request, res: Response) => {
   try {
-    const { userEmail, userId } = req.body;
+    const { userEmail, userId, userPhone } = req.body;
     console.log(req.body);
     const { id } = req.params;
     const job_post = await PostsModel.findOne({ _id: id });
@@ -22,6 +22,7 @@ export const UserApplyJob = async (req: Request, res: Response) => {
       jobTitle: job_post!.title,
       userCV: user.cv,
       userEmail,
+      userPhone,
       userId,
       userName: user.fullName,
       userPhoto: user.avatar,

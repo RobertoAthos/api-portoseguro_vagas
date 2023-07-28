@@ -5,6 +5,7 @@ const ApplyJobSchemma = new mongoose.Schema({
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: "Posts" },
   jobTitle: { type: String, ref: "Posts" },
   userEmail: { type: String, required: true },
+  userPhone: { type: String, required: true },
   userName: { type: String },
   userPhoto: { type: String },
   userCV: { type: String },
