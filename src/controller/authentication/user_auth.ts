@@ -17,11 +17,11 @@ export const UserRegister = async (req: Request, res: Response) => {
       return res.status(400).json("Email já existente");
     }
 
-    if ("cv" in req.files! && Array.isArray(req.files["cv"])) {
+    if (req.files && "cv" in req.files && Array.isArray(req.files["cv"])) {
       new_user.cv = req.files["cv"][0].path;
     }
-
-    if ("avatar" in req.files! && Array.isArray(req.files["avatar"])) {
+    
+    if (req.files && "avatar" in req.files && Array.isArray(req.files["avatar"])) {
       new_user.avatar = req.files["avatar"][0].path;
     }
 
@@ -53,9 +53,23 @@ export const UserLogin = async (req: Request, res: Response) => {
       return res.status(400).send("Esse Email/Senha incorreto");
     }
 
-    const token = jwt.sign({ _id: user._id }, keys.USERS_SECRET_KEY!);
+    const payload = {
+      _id: user._id,
+      name: user.fullName,
+      email: user.email,
+      location: user.location,
+      cv: user.cv,
+      avatar: user.avatar
+    };
+
+    const token = jwt.sign(payload, keys.USERS_SECRET_KEY!);
     res.header("Authorization", token);
     res.status(200).json({ user, token });
+
+
+
+    const data = jwt.decode(token)
+    console.log(data)
   } catch (error: any) {
     res.status(400).send(error.message);
   }
