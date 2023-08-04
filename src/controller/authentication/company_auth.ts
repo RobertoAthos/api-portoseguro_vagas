@@ -10,16 +10,16 @@ export const CompanyRegister = async (req: Request, res: Response) => {
       email: req.body.company_email,
     });
 
-    if(verify_if_company_exists){
+    if (verify_if_company_exists) {
       return res.status(400).json("Email já existente");
     }
-    
+
     const new_company = new CompanyModel(req.body);
 
     if (req.file) {
       new_company.avatar = req.file.path;
     }
-    
+
     const salt = await bcrypt.genSalt(10);
     new_company.password = bcrypt.hashSync(req.body.password, salt);
 
@@ -32,10 +32,10 @@ export const CompanyRegister = async (req: Request, res: Response) => {
 
 export const CompanyLogin = async (req: Request, res: Response) => {
   try {
-    const verify_if_company_exists = await CompanyModel.findOne({
+    const company = await CompanyModel.findOne({
       email: req.body.company_email,
     });
-    if (!verify_if_company_exists) {
+    if (!company) {
       return res
         .status(400)
         .send("Esse Email/Senha não existe ou estão incorretos");
@@ -43,17 +43,22 @@ export const CompanyLogin = async (req: Request, res: Response) => {
 
     const login_company = bcrypt.compareSync(
       req.body.password,
-      verify_if_company_exists.password
+      company.password
     );
 
     if (!login_company) {
       return res.status(400).send("Esse Email/Senha incorreto");
     }
 
-    const token = jwt.sign(
-      { _id: verify_if_company_exists._id },
-      keys.COMPANIES_SECRET_KEY!
-    );
+    const payload = {
+      _id: company._id,
+      company_name: company.company_name,
+      comapany_email: company.company_email,
+      cnpj: company.cnpj,
+      avatar: company.avatar,
+    };
+
+    const token = jwt.sign(payload, keys.COMPANIES_SECRET_KEY!);
     res.header("Authorization", token);
     res.status(200).json(token);
   } catch (error: any) {
