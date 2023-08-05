@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { CompanyModel } from "../../model/company_auth_model";
 import bcrypt from "bcryptjs";
+import { PostsModel } from "../../model/posts";
 
 export const UpdateCompany = async (req: Request, res: Response) => {
   try {
@@ -58,5 +59,22 @@ export const UpdateCompanyPassword = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(400).json("Algo deu errado na hora de mudar sua senha");
+  }
+};
+
+export const GetAccountPosts = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const company = await CompanyModel.findById(id);
+
+    if(!company){
+      return res.status(404).json("Você ainda não possui nenhuma vaga cadastrada")
+    }
+
+    const company_posts = await PostsModel.find({ company_id: company?._id });
+
+    res.status(200).json(company_posts);
+  } catch (error: any) {
+    res.status(400).json(error.message);
   }
 };
