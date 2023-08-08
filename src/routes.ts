@@ -79,7 +79,7 @@ router.get(
 
 router.get(
   "/candidatos/:id",
-  //authMiddleware(keys.COMPANIES_SECRET_KEY!),
+  authMiddleware(keys.COMPANIES_SECRET_KEY!),
   getAllApplications
 );
 
