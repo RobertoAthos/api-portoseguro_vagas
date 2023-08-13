@@ -72,7 +72,7 @@ export const GetAccountPosts = async (req: Request, res: Response) => {
       return res.status(404).json("Você ainda não possui nenhuma vaga cadastrada")
     }
 
-    const company_posts = await PostsModel.find({ company_id: company?._id });
+    const company_posts = await PostsModel.find({ company_id: company?._id }).sort({ _id: -1 });
 
     res.status(200).json(company_posts);
   } catch (error: any) {
