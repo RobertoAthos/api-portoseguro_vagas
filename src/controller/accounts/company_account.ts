@@ -6,7 +6,7 @@ import { PostsModel } from "../../model/posts";
 export const UpdateCompany = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { company_email, company_name, avatar, cnpj } = req.body;
+    const { company_email, company_name, avatar, cnpj,about } = req.body;
     const company = await CompanyModel.findById(id);
     if (!company) {
       res.status(404).send("Empresa não existe");
@@ -16,6 +16,7 @@ export const UpdateCompany = async (req: Request, res: Response) => {
     company!.company_email = company_email;
     company!.cnpj = cnpj;
     company!.avatar = avatar;
+    company!.about = about
 
     if (req.file) {
       company!.avatar = req.file.path;

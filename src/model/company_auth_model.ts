@@ -6,6 +6,7 @@ const CompanySchema = new mongoose.Schema({
   password: { type: String, required: true },
   avatar: String,
   cnpj: { type: String, required: true },
+  about: String
 });
 
 export const CompanyModel = mongoose.model("Companies", CompanySchema);
