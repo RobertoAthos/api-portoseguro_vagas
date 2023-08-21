@@ -36,17 +36,11 @@ export const createPost = async (req: Request, res: Response) => {
 export const updatePost = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { title, salary, location, about, companyId } = req.body;
+    const { title, salary, location, about } = req.body;
     const post = await PostsModel.findById(id);
 
     if (!post) {
       res.status(404).json("Anuncio de vaga não existe");
-    }
-
-    const company = await CompanyModel.findById(companyId);
-
-    if (!company) {
-      return res.status(404).json({ message: "Company not found" });
     }
 
     const update_post = await PostsModel.findByIdAndUpdate(
@@ -56,10 +50,8 @@ export const updatePost = async (req: Request, res: Response) => {
         salary,
         location,
         about,
-        company_id: company._id,
-        company_photo: company.avatar,
-        company_name: company.company_name,
-      }
+      },
+      {new: true}
     );
 
     res.status(200).json(update_post);
@@ -98,8 +90,8 @@ export const deletePost = async (req: Request, res: Response) => {
       res.send(
         "Anuncio não pode ser deletado pois ele não foi encontrado no nosso banco de dados"
       );
-    const delete_post = await PostsModel.findByIdAndDelete(id);
-    res.status(200).send(delete_post);
+    await PostsModel.findByIdAndDelete(id);
+    res.status(200)
   } catch (error: any) {
     console.log(error);
     res.status(400).json(error.message);

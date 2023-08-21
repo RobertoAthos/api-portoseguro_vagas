@@ -11,6 +11,7 @@ import {
   DeleteCompany,
   UpdateCompanyPassword,
   GetAccountPosts,
+  GetCompany,
 } from "./controller/accounts/company_account";
 
 import {
@@ -44,6 +45,7 @@ const uploadFiles = upload.fields([
 
 router.get("/vagas", getAllPosts);
 router.get("/vaga/:id", getPost);
+router.get("/empresa/:id", GetCompany)
 router.post("/cadastrar-empresa", upload.single("avatar"), CompanyRegister);
 router.post("/login-empresa", CompanyLogin);
 router.post(
@@ -53,7 +55,7 @@ router.post(
 );
 
 router.delete(
-  "/delete-company-post",
+  "/delete-company-post/:id",
   authMiddleware(keys.COMPANIES_SECRET_KEY!),
   deletePost
 );
