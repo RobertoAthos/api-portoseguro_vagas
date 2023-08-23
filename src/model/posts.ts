@@ -6,11 +6,7 @@ const PostsSchema = new mongoose.Schema({
   location: { type: String, required: true },
   about: { type: String, required: true },
   company_id: { type: mongoose.Schema.Types.ObjectId, ref: "Companies" },
-  company_photo: {
-    type: String,
-    default:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTr2TWLC89uQt3vWdCNxxESU3iK9Pj-acV5CA&usqp=CAU",
-  },
+  company_photo: {type: String},
   company_name: { type: String, required: true },
   candidates: { type: Number, default: 0 },
 });

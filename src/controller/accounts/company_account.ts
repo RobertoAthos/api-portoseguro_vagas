@@ -6,7 +6,8 @@ import { PostsModel } from "../../model/posts";
 export const UpdateCompany = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { company_email, company_name, avatar, cnpj, aboutCompany } = req.body;
+    const { company_email, company_name, avatar, cnpj, aboutCompany } =
+      req.body;
     const company = await CompanyModel.findById(id);
 
     const update_company = await CompanyModel.findByIdAndUpdate(
@@ -88,7 +89,9 @@ export const GetAccountPosts = async (req: Request, res: Response) => {
 export const GetCompany = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const company = await CompanyModel.findById(id);
+    const post = await PostsModel.findById(id);
+
+    const company = await CompanyModel.findById(post?.company_id).select("-password");
     res.status(200).json(company);
   } catch (error: any) {
     res.status(400).json(error.message);

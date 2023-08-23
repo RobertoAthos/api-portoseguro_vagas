@@ -18,6 +18,8 @@ export const CompanyRegister = async (req: Request, res: Response) => {
 
     if (req.file) {
       new_company.avatar = req.file.path;
+    }else{
+      new_company.avatar = "https://thinksport.com.au/wp-content/uploads/2020/01/avatar-.jpg"
     }
 
     const salt = await bcrypt.genSalt(10);

@@ -23,6 +23,8 @@ export const UserRegister = async (req: Request, res: Response) => {
     
     if (req.files && "avatar" in req.files && Array.isArray(req.files["avatar"])) {
       new_user.avatar = req.files["avatar"][0].path;
+    }else{
+      new_user.avatar = "https://thinksport.com.au/wp-content/uploads/2020/01/avatar-.jpg"
     }
 
     console.log(req.files);
