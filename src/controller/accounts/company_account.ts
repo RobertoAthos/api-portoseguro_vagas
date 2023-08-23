@@ -88,11 +88,30 @@ export const GetAccountPosts = async (req: Request, res: Response) => {
 
 export const GetCompany = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const post = await PostsModel.findById(id);
+    const { companyId, jobId } = req.query; // Retrieve query parameters
 
-    const company = await CompanyModel.findById(post?.company_id).select("-password");
-    res.status(200).json(company);
+    if (jobId) {
+      const jobPost = await PostsModel.findById(jobId);
+      if (jobPost) {
+        const company = await CompanyModel.findById(jobPost.company_id).select(
+          "-password"
+        );
+        res.status(200).json(company);
+      } else {
+        res.status(404).json({ error: "Job not found" });
+      }
+    } else if (companyId) {
+      const company = await CompanyModel.findById(companyId).select(
+        "-password"
+      );
+      if (company) {
+        res.status(200).json(company);
+      } else {
+        res.status(404).json({ error: "Company not found" });
+      }
+    } else {
+      res.status(400).json({ error: "Missing query parameters" });
+    }
   } catch (error: any) {
     res.status(400).json(error.message);
   }

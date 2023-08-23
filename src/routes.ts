@@ -45,7 +45,7 @@ const uploadFiles = upload.fields([
 
 router.get("/vagas", getAllPosts);
 router.get("/vaga/:id", getPost);
-router.get("/empresa/:id", GetCompany)
+router.get("/empresa", GetCompany)
 router.post("/cadastrar-empresa", upload.single("avatar"), CompanyRegister);
 router.post("/login-empresa", CompanyLogin);
 router.post(
