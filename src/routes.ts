@@ -78,7 +78,6 @@ router.patch(
 
 router.get(
   "/minhas-vagas/:id",
-  authMiddleware(keys.COMPANIES_SECRET_KEY!),
   GetAccountPosts
 );
 

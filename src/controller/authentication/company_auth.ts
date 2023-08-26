@@ -41,7 +41,7 @@ export const CompanyRegister = async (req: Request, res: Response) => {
 
       await S3.send(new PutObjectCommand(uploadParams));
 
-      new_company!.avatar = avatarFileName;
+      new_company.avatar = avatarFileName;
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -57,7 +57,7 @@ export const CompanyRegister = async (req: Request, res: Response) => {
 export const CompanyLogin = async (req: Request, res: Response) => {
   try {
     const company = await CompanyModel.findOne({
-      email: req.body.company_email,
+      company_email: req.body.company_email,
     });
     if (!company) {
       return res
@@ -77,7 +77,7 @@ export const CompanyLogin = async (req: Request, res: Response) => {
     const payload = {
       _id: company._id,
       company_name: company.company_name,
-      comapany_email: company.company_email,
+      company_email: company.company_email,
       cnpj: company.cnpj,
       avatar: company.avatar,
     };
