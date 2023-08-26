@@ -1,39 +1,75 @@
-
 import { Request, Response } from "express";
 import { UserModel } from "../../model/user_auth_model";
-import bcrypt from 'bcryptjs'
+import bcrypt from "bcryptjs";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { keys } from "../../config/keys";
+import path from "path";
 
 export const UpdateUser = async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const { fullName, email, location, cv, avatar } = req.body;
-      const user = await UserModel.findById(id);
-      if (!user) {
-        res.status(404).send("Usuário não existe");
-      }
-  
-      user!.fullName = fullName;
-      user!.email = email;
-      user!.location = location;
-      user!.cv = cv;
-      user!.avatar = avatar;
-  
-      if ("cv" in req.files! && Array.isArray(req.files["cv"])) {
-        user!.cv = req.files["cv"][0].path;
-      }
-      
-      if ("avatar" in req.files! && Array.isArray(req.files["avatar"])) {
-        user!.avatar = req.files["avatar"][0].path;
-      }
-  
-      const updatedUser = await user!.save();
-  
-      res.status(200).json(updatedUser);
-    } catch (error: any) {
-      res.status(400).send(error.message);
-    }
-  };
+  try {
+    const { id } = req.params;
+    const { fullName, email, location } = req.body;
 
+    const update_user = await UserModel.findByIdAndUpdate(
+      { _id: id },
+      {
+        fullName,
+        email,
+        location,
+      },
+      { new: true }
+    );
+
+    const S3 = new S3Client({
+      region: "auto",
+      endpoint: keys.R2_ENDPOINT,
+      credentials: {
+        accessKeyId: keys.R2_ACCESS_KEY_ID!,
+        secretAccessKey: keys.R2_SECRET_ACCESS_KEY!,
+      },
+    });
+
+    if (update_user && "cv" in req.files! && Array.isArray(req.files["cv"])) {
+      const cvName = path.basename(req.file!.originalname);
+
+      const uploadParams = {
+        Body: req.file!.buffer,
+        Bucket: "psjobs",
+        Key: cvName,
+        ContentType: req.file!.mimetype,
+      };
+
+      await S3.send(new PutObjectCommand(uploadParams));
+
+      update_user!.cv = cvName;
+      await update_user!.save();
+    }
+
+    if (
+      update_user &&
+      "avatar" in req.files! &&
+      Array.isArray(req.files["avatar"])
+    ) {
+      const avatarFileName = path.basename(req.file!.originalname);
+
+      const uploadParams = {
+        Body: req.file!.buffer,
+        Bucket: "psjobs",
+        Key: avatarFileName,
+        ContentType: req.file!.mimetype,
+      };
+
+      await S3.send(new PutObjectCommand(uploadParams));
+
+      update_user!.avatar = avatarFileName;
+      await update_user!.save();
+    }
+
+    res.status(200).json(update_user);
+  } catch (error: any) {
+    res.status(400).send(error.message);
+  }
+};
 
 export const DeleteUser = async (req: Request, res: Response) => {
   try {
@@ -44,7 +80,7 @@ export const DeleteUser = async (req: Request, res: Response) => {
     console.log(error);
     res.status(400).json("Algo deu errado na hora de deletar sua conta");
   }
-}
+};
 
 export const UpdateUserPassword = async (req: Request, res: Response) => {
   try {
@@ -66,4 +102,4 @@ export const UpdateUserPassword = async (req: Request, res: Response) => {
     console.log(error);
     res.status(400).json("Algo deu errado na hora de mudar sua senha");
   }
-}
+};

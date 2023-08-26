@@ -2,28 +2,50 @@ import { Request, Response } from "express";
 import { CompanyModel } from "../../model/company_auth_model";
 import bcrypt from "bcryptjs";
 import { PostsModel } from "../../model/posts";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { keys } from "../../config/keys";
+import path from "path";
 
 export const UpdateCompany = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { company_email, company_name, avatar, cnpj, aboutCompany } =
+    const { company_email, company_name, cnpj, aboutCompany } =
       req.body;
-    const company = await CompanyModel.findById(id);
+
+    const S3 = new S3Client({
+      region: "auto",
+      endpoint: keys.R2_ENDPOINT,
+      credentials: {
+        accessKeyId: keys.R2_ACCESS_KEY_ID!,
+        secretAccessKey: keys.R2_SECRET_ACCESS_KEY!,
+      },
+    });
 
     const update_company = await CompanyModel.findByIdAndUpdate(
       { _id: id },
       {
         company_email,
         company_name,
-        avatar,
         cnpj,
         aboutCompany,
       },
       { new: true }
     );
 
-    if (req.file) {
-      company!.avatar = req.file.path;
+    if (update_company && req.file) {
+      const avatarFileName = path.basename(req.file.originalname);
+
+      const uploadParams = {
+        Body: req.file.buffer,
+        Bucket: "psjobs",
+        Key: avatarFileName,
+        ContentType: req.file.mimetype,
+      };
+
+      await S3.send(new PutObjectCommand(uploadParams));
+
+      update_company!.avatar = avatarFileName;
+      await update_company!.save();
     }
 
     res.status(200).json(update_company);

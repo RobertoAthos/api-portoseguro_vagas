@@ -26,11 +26,14 @@ import { getAllApplications } from "./controller/jobs/get_job_applications";
 
 import { authMiddleware } from "./middleware/auth_middleware";
 import { keys } from "./config/keys";
-import { upload } from "./middleware/upload";
+import multer from "multer";
 
 const router = Router();
 
-const uploadFiles = upload.fields([
+const storage = multer.memoryStorage();
+const upload_r2 = multer({ storage: storage });
+
+const uploadFiles = upload_r2.fields([
   {
     name: "cv",
     maxCount: 1,
@@ -45,8 +48,8 @@ const uploadFiles = upload.fields([
 
 router.get("/vagas", getAllPosts);
 router.get("/vaga/:id", getPost);
-router.get("/empresa", GetCompany)
-router.post("/cadastrar-empresa", upload.single("avatar"), CompanyRegister);
+router.get("/empresa", GetCompany);
+router.post("/cadastrar-empresa", upload_r2.single("avatar"), CompanyRegister);
 router.post("/login-empresa", CompanyLogin);
 router.post(
   "/criar-vaga",
@@ -69,7 +72,7 @@ router.patch(
 router.patch(
   "/atualizar-conta-empresa/:id",
   authMiddleware(keys.COMPANIES_SECRET_KEY!),
-  upload.single("avatar"),
+  upload_r2.single("avatar"),
   UpdateCompany
 );
 

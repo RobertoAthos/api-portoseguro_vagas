@@ -3,6 +3,8 @@ import { CompanyModel } from "../../model/company_auth_model";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { keys } from "../../config/keys";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import path from "path";
 
 export const CompanyRegister = async (req: Request, res: Response) => {
   try {
@@ -16,10 +18,30 @@ export const CompanyRegister = async (req: Request, res: Response) => {
 
     const new_company = new CompanyModel(req.body);
 
-    if (req.file) {
+    const S3 = new S3Client({
+      region: "auto",
+      endpoint: keys.R2_ENDPOINT,
+      credentials: {
+        accessKeyId: keys.R2_ACCESS_KEY_ID!,
+        secretAccessKey: keys.R2_SECRET_ACCESS_KEY!,
+      },
+    });
+
+    if (new_company && req.file) {
       new_company.avatar = req.file.path;
-    }else{
-      new_company.avatar = "https://thinksport.com.au/wp-content/uploads/2020/01/avatar-.jpg"
+
+      const avatarFileName = path.basename(req.file.originalname);
+
+      const uploadParams = {
+        Body: req.file.buffer,
+        Bucket: "psjobs",
+        Key: avatarFileName,
+        ContentType: req.file.mimetype,
+      };
+
+      await S3.send(new PutObjectCommand(uploadParams));
+
+      new_company!.avatar = avatarFileName;
     }
 
     const salt = await bcrypt.genSalt(10);
