@@ -77,7 +77,7 @@ router.patch(
 );
 
 router.get(
-  "/minhas-vagas/:id",
+  "/minhas-vagas",
   GetAccountPosts
 );
 

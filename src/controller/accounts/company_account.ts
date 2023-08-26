@@ -9,8 +9,7 @@ import path from "path";
 export const UpdateCompany = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { company_email, company_name, cnpj, aboutCompany } =
-      req.body;
+    const { company_email, company_name, cnpj, aboutCompany } = req.body;
 
     const S3 = new S3Client({
       region: "auto",
@@ -89,20 +88,26 @@ export const UpdateCompanyPassword = async (req: Request, res: Response) => {
 
 export const GetAccountPosts = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const company = await CompanyModel.findById(id);
-
-    if (!company) {
-      return res
-        .status(404)
-        .json("Você ainda não possui nenhuma vaga cadastrada");
+    const { companyId, jobId } = req.query;
+    if (jobId) {
+      const company = await PostsModel.findById(jobId);
+      if (company) {
+        const company_posts = await PostsModel.find({
+          company_id: company?.company_id,
+        }).sort({ _id: -1 });
+        res.status(200).json(company_posts);
+      } else {
+        res.status(404).json({ error: "Job not found" });
+      }
+    } else if (companyId) {
+      const company = await CompanyModel.findById(companyId);
+      const company_posts = await PostsModel.find({
+        company_id: company?._id,
+      }).sort({ _id: -1 });
+      res.status(200).json(company_posts);
+    } else {
+      res.status(404).json({ error: "Job not found" });
     }
-
-    const company_posts = await PostsModel.find({
-      company_id: company?._id,
-    }).sort({ _id: -1 });
-
-    res.status(200).json(company_posts);
   } catch (error: any) {
     res.status(400).json(error.message);
   }
@@ -110,7 +115,7 @@ export const GetAccountPosts = async (req: Request, res: Response) => {
 
 export const GetCompany = async (req: Request, res: Response) => {
   try {
-    const { companyId, jobId } = req.query; // Retrieve query parameters
+    const { companyId, jobId } = req.query;
 
     if (jobId) {
       const jobPost = await PostsModel.findById(jobId);
