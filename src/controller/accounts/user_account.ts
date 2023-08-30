@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { keys } from "../../config/keys";
 import path from "path";
+import { ApplyJobModel } from "../../model/apply_jobs_model";
+import { PostsModel } from "../../model/posts";
 
 export const UpdateUser = async (req: Request, res: Response) => {
   try {
@@ -54,7 +56,19 @@ export const UpdateUser = async (req: Request, res: Response) => {
 export const DeleteUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const userAppliedJobs = await ApplyJobModel.find({ userId: id });
+
+    for (const job of userAppliedJobs) {
+      await PostsModel.updateMany(
+        { _id: job.jobId },
+        { $inc: { candidates: -1 } }
+      );
+    }
+
+    await ApplyJobModel.deleteMany({ userId: id });
+
     const deleteUser = await UserModel.findByIdAndDelete(id);
+
     res.status(200).json(deleteUser);
   } catch (error: any) {
     console.log(error);
