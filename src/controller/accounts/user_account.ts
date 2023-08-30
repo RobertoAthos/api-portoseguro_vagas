@@ -29,27 +29,7 @@ export const UpdateUser = async (req: Request, res: Response) => {
       },
     });
 
-    if (update_user && "cv" in req.files! && Array.isArray(req.files["cv"])) {
-      const cvName = path.basename(req.file!.originalname);
-
-      const uploadParams = {
-        Body: req.file!.buffer,
-        Bucket: "psjobs",
-        Key: cvName,
-        ContentType: req.file!.mimetype,
-      };
-
-      await S3.send(new PutObjectCommand(uploadParams));
-
-      update_user!.cv = cvName;
-      await update_user!.save();
-    }
-
-    if (
-      update_user &&
-      "avatar" in req.files! &&
-      Array.isArray(req.files["avatar"])
-    ) {
+    if (update_user && req.file) {
       const avatarFileName = path.basename(req.file!.originalname);
 
       const uploadParams = {
@@ -79,6 +59,17 @@ export const DeleteUser = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.log(error);
     res.status(400).json("Algo deu errado na hora de deletar sua conta");
+  }
+};
+
+export const getUser = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user = await UserModel.findById(id).select("-password");
+    res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json("Algo deu errado ao procurar usuário");
   }
 };
 

@@ -9,6 +9,7 @@ const ApplyJobSchemma = new mongoose.Schema({
   userName: { type: String },
   userPhoto: { type: String },
   userCV: { type: String },
+  AppliedDate: { type: Date, default: Date.now() },
 });
 
 export const ApplyJobModel = mongoose.model("ApplyJobs", ApplyJobSchemma);

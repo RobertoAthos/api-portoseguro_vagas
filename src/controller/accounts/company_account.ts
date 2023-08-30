@@ -41,7 +41,9 @@ export const UpdateCompany = async (req: Request, res: Response) => {
         ContentType: req.file.mimetype,
       };
 
+      console.log("sending to R2")
       await S3.send(new PutObjectCommand(uploadParams));
+      console.log("image sent")
 
       update_company!.avatar = avatarFileName;
       await update_company!.save();

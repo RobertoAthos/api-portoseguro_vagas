@@ -8,6 +8,9 @@ import path from "path";
 
 export const CompanyRegister = async (req: Request, res: Response) => {
   try {
+    
+    const new_company = new CompanyModel(req.body);
+    
     const verify_if_company_exists = await CompanyModel.findOne({
       email: req.body.company_email,
     });
@@ -15,9 +18,7 @@ export const CompanyRegister = async (req: Request, res: Response) => {
     if (verify_if_company_exists) {
       return res.status(400).json("Email já existente");
     }
-
-    const new_company = new CompanyModel(req.body);
-
+    
     const S3 = new S3Client({
       region: "auto",
       endpoint: keys.R2_ENDPOINT,
@@ -38,9 +39,9 @@ export const CompanyRegister = async (req: Request, res: Response) => {
         Key: avatarFileName,
         ContentType: req.file.mimetype,
       };
-
+      console.log("sending to R2")
       await S3.send(new PutObjectCommand(uploadParams));
-
+      console.log("image sent")
       new_company.avatar = avatarFileName;
     }
 

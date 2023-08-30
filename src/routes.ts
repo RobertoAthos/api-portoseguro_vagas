@@ -5,7 +5,12 @@ import {
 } from "./controller/authentication/company_auth";
 import { UserLogin, UserRegister } from "./controller/authentication/user_auth";
 
-import { UpdateUser } from "./controller/accounts/user_account";
+import {
+  UpdateUser,
+  DeleteUser,
+  UpdateUserPassword,
+  getUser,
+} from "./controller/accounts/user_account";
 import {
   UpdateCompany,
   DeleteCompany,
@@ -21,7 +26,10 @@ import {
   getPost,
   updatePost,
 } from "./controller/jobs/job_posts";
-import { UserApplyJob } from "./controller/jobs/user_apply_job";
+import {
+  UserApplyJob,
+  GetUserAppliedJobs,
+} from "./controller/jobs/user_apply_job";
 import { getAllApplications } from "./controller/jobs/get_job_applications";
 
 import { authMiddleware } from "./middleware/auth_middleware";
@@ -32,17 +40,6 @@ const router = Router();
 
 const storage = multer.memoryStorage();
 const upload_r2 = multer({ storage: storage });
-
-const uploadFiles = upload_r2.fields([
-  {
-    name: "cv",
-    maxCount: 1,
-  },
-  {
-    name: "avatar",
-    maxCount: 1,
-  },
-]);
 
 //----------- COMPANY --------------
 
@@ -76,10 +73,7 @@ router.patch(
   UpdateCompany
 );
 
-router.get(
-  "/minhas-vagas",
-  GetAccountPosts
-);
+router.get("/minhas-vagas", GetAccountPosts);
 
 router.get(
   "/candidatos/:id",
@@ -93,18 +87,38 @@ router.patch("/atualizar-senha-empresa/:id", UpdateCompanyPassword);
 
 //----------- USERS --------------
 
-router.post("/cadastrar-usuario", uploadFiles, UserRegister);
+router.post("/cadastrar-usuario", upload_r2.single("avatar"), UserRegister);
 router.post("/login-usuario", UserLogin);
 router.patch(
   "/atualizar-conta/:id",
   authMiddleware(keys.USERS_SECRET_KEY!),
-  uploadFiles,
+  upload_r2.single("avatar"),
   UpdateUser
+);
+
+router.get("/user/:id", getUser);
+router.delete(
+  "/delete-user/:id",
+  authMiddleware(keys.USERS_SECRET_KEY!),
+  DeleteUser
+);
+
+router.get(
+  "/minhas-candidaturas/:id",
+  authMiddleware(keys.USERS_SECRET_KEY!),
+  GetUserAppliedJobs
+);
+
+router.patch(
+  "/update-user-password/:id",
+  authMiddleware(keys.USERS_SECRET_KEY!),
+  UpdateUserPassword
 );
 
 router.post(
   "/candidatar-usuario/:id",
   authMiddleware(keys.USERS_SECRET_KEY!),
+  upload_r2.single("userCV"),
   UserApplyJob
 );
 
