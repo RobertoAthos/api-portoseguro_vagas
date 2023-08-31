@@ -81,9 +81,17 @@ router.get(
   getAllApplications
 );
 
-router.delete("/delete-company/:id", DeleteCompany);
+router.delete(
+  "/delete-company/:id",
+  authMiddleware(keys.COMPANIES_SECRET_KEY!),
+  DeleteCompany
+);
 
-router.patch("/atualizar-senha-empresa/:id", UpdateCompanyPassword);
+router.patch(
+  "/atualizar-senha-empresa/:id",
+  authMiddleware(keys.COMPANIES_SECRET_KEY!),
+  UpdateCompanyPassword
+);
 
 //----------- USERS --------------
 

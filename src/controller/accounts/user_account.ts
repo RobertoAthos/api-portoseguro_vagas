@@ -91,8 +91,22 @@ export const UpdateUserPassword = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
+    const user = await UserModel.findOne({ _id: id });
+    const currentPassword = req.body.password;
+    const newPassword = req.body.newPassword;
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = bcrypt.hashSync(req.body.password, salt);
+    const hashedPassword = bcrypt.hashSync(newPassword, salt);
+
+    if (!user) return res.json("user not found");
+
+    const passwordMatches = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+
+    if (!passwordMatches) {
+      return res.status(400).json("Senha atual incorreta");
+    }
 
     const update_password = await UserModel.findByIdAndUpdate(
       { _id: id },
@@ -101,7 +115,6 @@ export const UpdateUserPassword = async (req: Request, res: Response) => {
       },
       { new: true }
     );
-
     res.status(200).json(update_password);
   } catch (error) {
     console.log(error);

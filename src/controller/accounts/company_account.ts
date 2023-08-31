@@ -41,9 +41,9 @@ export const UpdateCompany = async (req: Request, res: Response) => {
         ContentType: req.file.mimetype,
       };
 
-      console.log("sending to R2")
+      console.log("sending to R2");
       await S3.send(new PutObjectCommand(uploadParams));
-      console.log("image sent")
+      console.log("image sent");
 
       update_company!.avatar = avatarFileName;
       await update_company!.save();
@@ -58,6 +58,7 @@ export const UpdateCompany = async (req: Request, res: Response) => {
 export const DeleteCompany = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    await PostsModel.deleteMany({ company_id: id });
     const deleteCompany = await CompanyModel.findByIdAndDelete(id);
     res.status(200).json(deleteCompany);
   } catch (error: any) {
@@ -69,9 +70,19 @@ export const DeleteCompany = async (req: Request, res: Response) => {
 export const UpdateCompanyPassword = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-
+    const company = await CompanyModel.findOne({ _id: id });
+    const currentPassword = req.body.password;
+    const newPassword = req.body.newPassword;
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = bcrypt.hashSync(req.body.password, salt);
+    const hashedPassword = bcrypt.hashSync(newPassword, salt);
+
+    if (!company) return res.json("Company not found");
+
+    const passwordMatches = bcrypt.compare(currentPassword, company.password);
+
+    if (!passwordMatches) {
+      return res.status(400).json("Senha atual incorreta");
+    }
 
     const update_password = await CompanyModel.findByIdAndUpdate(
       { _id: id },
