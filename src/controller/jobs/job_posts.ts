@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { PostsModel } from "../../model/posts";
 import { CompanyModel } from "../../model/company_auth_model";
+import { ApplyJobModel } from "../../model/apply_jobs_model";
 
 export const createPost = async (req: Request, res: Response) => {
   try {
@@ -85,11 +86,21 @@ export const getPost = async (req: Request, res: Response) => {
 export const deletePost = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const appliedJobs = await ApplyJobModel.find({jobId:id})
+
+    if(appliedJobs){
+      for(const application of appliedJobs){
+        await ApplyJobModel.findByIdAndDelete(application._id)
+      }
+    }
+
     const post = await PostsModel.findById(id);
+
     if (!post)
       res.send(
         "Anuncio não pode ser deletado pois ele não foi encontrado no nosso banco de dados"
       );
+      
     await PostsModel.findByIdAndDelete(id);
     res.status(200)
   } catch (error: any) {
